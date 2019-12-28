@@ -51,5 +51,5 @@ type KeyStorer interface {
 	Delete(id int64) error
 	Get(id int64) (*Key, error)
 	GetByName(name string) (*Key, error)
-	Query(queries QueryKey, sorts SortKey) ([]*Key, error)
+	Query(queries QueryKey, sorts SortKey) ([]*Key, int64, error)
 }
