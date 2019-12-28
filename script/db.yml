@@ -1,0 +1,29 @@
+version: '3'
+services:
+  db:
+    image: mariadb
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+    healthcheck:
+      test: ["CMD", "sh", "-c", "mysqladmin ping -hlocalhost -p$MYSQL_ROOT_PASSWORD"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    command: "--character-set-server=utf8mb4"
+    volumes:
+      - auth_service_db:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  pma:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=db
+      - PMA_USER=root
+      - PMA_PASSWORD=password
+    ports:
+      - "8080:80"
+
+volumes:
+  auth_service_db:
