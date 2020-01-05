@@ -41,6 +41,8 @@ func TestMain(m *testing.M) {
 	}
 }
 
+//-----------------------------------------------------------------------------
+
 type KeyStorerStub struct {
 	Keys   []*storage.Key
 	sortby func(key1, key2 *storage.Key) bool
@@ -177,4 +179,35 @@ func (stub *KeyStorerStub) Query(queries storage.QueryKey, sorts storage.SortKey
 	sort.Sort(stub)
 
 	return results[queries.Offset*queries.Limit : queries.Offset*queries.Limit+queries.Limit], int64(len(results)), nil
+}
+
+//-----------------------------------------------------------------------------
+
+type bunchStorerStub struct {
+	bunches []*storage.Bunch
+	sortby  func(bunch1, bunch2 *storage.Bunch) bool
+}
+
+func (stub *bunchStorerStub) Len() int {
+	return len(stub.bunches)
+}
+
+func (stub *bunchStorerStub) Swap(i, j int) {
+	stub.bunches[i], stub.bunches[j] = stub.bunches[j], stub.bunches[i]
+}
+
+func (stub *bunchStorerStub) Less(i, j int) bool {
+	return stub.sortby(stub.bunches[i], stub.bunches[j])
+}
+
+func (stub *bunchStorerStub) Insert(k storage.CreateBunch) (int64, error) {
+	id := inc.new()
+	stub.bunches = append(stub.bunches, &storage.Bunch{
+		ID:        id,
+		Name:      k.Name,
+		Desc:      k.Desc,
+		Active:    true,
+		UpdatedAt: time.Now(),
+	})
+	return id, nil
 }
